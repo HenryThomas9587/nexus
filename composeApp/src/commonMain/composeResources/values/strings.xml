@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="app_bar_title">趋势</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">home</string>
+    <string name="nav_discover">discover</string>
+    <string name="nav_bookmarks">bookmarks</string>
+    <string name="nav_profile">profile</string>
+</resources> 
