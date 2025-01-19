@@ -9,7 +9,7 @@ val AppTypography = Typography(
     h1 = TextStyle(
         fontWeight = FontWeight.Light,
         fontSize = 96.sp,
-        letterSpacing = (-1.5).sp
+        letterSpacing = (-1.5).sp,
     ),
     h2 = TextStyle(
         fontWeight = FontWeight.Light,

@@ -1,6 +1,9 @@
 package com.henry.nexus.feature.main.ui.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
@@ -9,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.henry.nexus.feature.news.domain.model.NewsModel
+import com.henry.nexus.feature.news.ui.components.NewsItem
 
 @Composable
 fun TradeNewsSection(
@@ -24,7 +28,6 @@ fun TradeNewsSection(
             style = MaterialTheme.typography.h6,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
-
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -33,7 +36,7 @@ fun TradeNewsSection(
                 items = tradeNews,
                 key = { it.id }
             ) { news ->
-                TradeNewsCard(newsModel = news)
+                NewsItem(newsModel = news , onClick = {})
             }
         }
     }

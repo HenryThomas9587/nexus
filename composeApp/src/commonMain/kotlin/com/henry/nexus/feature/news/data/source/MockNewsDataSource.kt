@@ -21,7 +21,7 @@ class MockNewsDataSource : NewsDataSource {
                 author = "作者 ${index % 3}",
                 timeAgo = "${index % 24}小时前",
                 views = "${Random.nextInt(100, 10000)}",
-                comments = Random.nextInt(0, 100),
+                comments ="${Random.nextInt(100, 10000)}",
                 imageUrl = if (index % 2 == 0) "https://picsum.photos/300/200?random=$index" else null
             )
         }

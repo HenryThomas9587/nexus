@@ -8,6 +8,6 @@ data class NewsModel(
     val author: String,
     val timeAgo: String,
     val views: String,
-    val comments: Int,
+    val comments: String,
     val imageUrl: String?
 ) 

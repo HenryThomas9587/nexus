@@ -13,10 +13,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.henry.nexus.core.components.LoadingIndicator
 import com.henry.nexus.core.util.Debounce
 import com.henry.nexus.feature.main.domain.entity.HomeData
 import com.henry.nexus.feature.main.domain.entity.HomeItemType
-import com.henry.nexus.core.components.LoadingIndicator
+import com.henry.nexus.feature.news.ui.components.NewsItem
 import com.henry.nexus.feature.news.ui.components.StoryItem
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -91,7 +92,7 @@ fun HomeList(
                 }
 
                 HomeItemType.STORY.type -> {
-                    homeData.story?.let { StoryItem(story = it) }
+                    homeData.story?.let { StoryItem(story = it, onClick = {}) }
                 }
             }
         }
