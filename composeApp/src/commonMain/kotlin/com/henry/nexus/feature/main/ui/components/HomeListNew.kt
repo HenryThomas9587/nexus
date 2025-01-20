@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.FloatingActionButton
@@ -18,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,68 +28,81 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.henry.nexus.core.components.LoadMoreErrorItem
 import com.henry.nexus.core.components.LoadingMoreIndicator
+import com.henry.nexus.core.components.NoMoreDataItem
 import com.henry.nexus.core.util.Debounce
 import com.henry.nexus.feature.main.domain.entity.HomeData
 import com.henry.nexus.feature.main.domain.entity.HomeItemType
+import com.henry.nexus.feature.main.ui.pages.ScrollPosition
 import com.henry.nexus.feature.news.ui.components.StoryItem
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 private const val LOAD_MORE_THRESHOLD = 3
 private const val LOAD_MORE_DEBOUNCE = 500L
-private const val SCROLL_THRESHOLD = 200  // 滑动多少距离显示按钮
+private const val SCROLL_POSITION_DEBOUNCE = 300L
 
 @Composable
-fun HomeList(
+fun HomeListNew(
     modifier: Modifier = Modifier,
     homeDataList: List<HomeData>,
     isLoadingMore: Boolean,
-    onLoadMore: () -> Unit
+    loadMoreError: String?,
+    isNoMoreData: Boolean,
+    canLoadMore: Boolean,
+    scrollPosition: ScrollPosition,
+    onScrollPositionChange: (ScrollPosition) -> Unit,
+    onLoadMore: () -> Unit,
+    onRetryLoadMore: () -> Unit,
+    onClick: (HomeData) -> Unit
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = scrollPosition.index,
+        initialFirstVisibleItemScrollOffset = scrollPosition.offset
+    )
     val coroutineScope = rememberCoroutineScope()
     var showButton by remember { mutableStateOf(false) }
 
-    // 加载更多防抖
-    val loadMoreDebounce = remember(coroutineScope) {
+    HomeListScrollHandler(
+        coroutineScope = coroutineScope,
+        listState = listState,
+        isLoadingMore = isLoadingMore,
+        canLoadMore = canLoadMore,
+        onLoadMore = onLoadMore,
+        onShowButtonChange = { showButton = it }
+    )
+
+    // 滚动位置防抖
+    val scrollDebounce = remember(coroutineScope) {
         Debounce(
-            delayMillis = LOAD_MORE_DEBOUNCE,
+            delayMillis = SCROLL_POSITION_DEBOUNCE,
             coroutineScope = coroutineScope
         ) {
-            onLoadMore()
+            onScrollPositionChange(
+                ScrollPosition(
+                    index = listState.firstVisibleItemIndex,
+                    offset = listState.firstVisibleItemScrollOffset
+                )
+            )
         }
     }
 
-    // 监听加载更多
+
     LaunchedEffect(listState) {
         snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            val totalItemsCount = layoutInfo.totalItemsCount
-            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            LoadMoreInfo(
-                lastVisibleItem = lastVisibleItem,
-                totalItemsCount = totalItemsCount,
-                isOverscroll = listState.canScrollForward
+            Pair(
+                listState.firstVisibleItemIndex,
+                listState.firstVisibleItemScrollOffset
             )
         }
             .distinctUntilChanged()
-            .collect { info ->
-                if (shouldLoadMore(
-                        info = info,
-                        isLoadingMore = isLoadingMore
-                    )
-                ) {
-                    loadMoreDebounce.debounce()
-                }
+            .collect { (_, _) ->
+                scrollDebounce.debounce()
             }
     }
 
-    //监听滑动距离，显示或隐藏按钮
-    val firstVisibleItemIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
-    LaunchedEffect(firstVisibleItemIndex) {
-        showButton = firstVisibleItemIndex > 0 // 如果第一个可见元素不是顶部，就显示按钮
-    }
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
@@ -117,13 +130,34 @@ fun HomeList(
                     }
 
                     HomeItemType.STORY.type -> {
-                        homeData.story?.let { StoryItem(story = it, onClick = {}) }
+                        homeData.story?.let {
+                            StoryItem(
+                                story = it,
+                                onClick = { onClick(homeData) })
+                        }
                     }
                 }
             }
-            if (isLoadingMore) {
-                item {
+
+            item(
+                key = "load_more_error",
+                contentType = "load_more_error"
+            ) {
+                if (loadMoreError != null) {
+                    LoadMoreErrorItem(
+                        error = loadMoreError,
+                        onRetry = onRetryLoadMore
+                    )
+                }
+            }
+            item(key = "loading_more", contentType = "loading") {
+                if (isLoadingMore) {
                     LoadingMoreIndicator()
+                }
+            }
+            item(key = "no_more_data", contentType = "no_more_data") {
+                if (isNoMoreData) {
+                    NoMoreDataItem()
                 }
             }
         }
@@ -146,13 +180,43 @@ fun HomeList(
 }
 
 
+@Composable
+private fun HomeListScrollHandler(
+    coroutineScope: CoroutineScope,
+    listState: LazyListState,
+    isLoadingMore: Boolean,
+    canLoadMore: Boolean,
+    onLoadMore: () -> Unit,
+    onShowButtonChange: (Boolean) -> Unit
+) {
+    // 加载更多防抖
+    val loadMoreDebounce = remember(coroutineScope) {
+        Debounce(
+            delayMillis = LOAD_MORE_DEBOUNCE,
+            coroutineScope = coroutineScope
+        ) {
+            onLoadMore()
+        }
+    }
 
-private fun shouldLoadMore(
-    info: LoadMoreInfo,
-    isLoadingMore: Boolean
-): Boolean {
-    return !isLoadingMore &&
-            info.totalItemsCount > 0 &&
-            info.lastVisibleItem >= info.totalItemsCount - LOAD_MORE_THRESHOLD &&
-            !info.isOverscroll
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val totalItemsCount = layoutInfo.totalItemsCount
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            Triple(lastVisibleItemIndex, totalItemsCount, listState.canScrollForward)
+        }
+            .distinctUntilChanged()
+            .collect { (lastVisibleItemIndex, totalItemsCount, isOverscroll) ->
+                val shouldLoadMore = canLoadMore &&
+                        !isLoadingMore &&
+                        totalItemsCount > 0 &&
+                        lastVisibleItemIndex >= totalItemsCount - LOAD_MORE_THRESHOLD &&
+                        !isOverscroll
+                if (shouldLoadMore) {
+                    loadMoreDebounce.debounce()
+                }
+                onShowButtonChange(listState.firstVisibleItemIndex > 0)
+            }
+    }
 }

@@ -8,8 +8,8 @@ object AppColors {
     val PrimaryVariant = Color(0xFF156F6A)
 
     // Secondary Colors
-    val Secondary = Color(0xFF6A1B9A)
-    val SecondaryVariant = Color(0xFF4A148C)
+    val Secondary = Color(0xFF20958f)
+    val SecondaryVariant = Color(0xFF156F6A)
 
     // Background & Surface
     val Background = Color.White

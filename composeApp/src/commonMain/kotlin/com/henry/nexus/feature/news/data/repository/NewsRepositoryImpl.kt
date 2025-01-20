@@ -13,7 +13,7 @@ class NewsRepositoryImpl(
     }
 
     override suspend fun getTradedNews(page: Int, pageSize: Int): List<NewsModel> {
-        return remoteDataSource.getNews(page, pageSize)
+        return remoteDataSource.getTradedNews(page, pageSize)
     }
 
     override suspend fun getHotNews(page: Int, pageSize: Int): List<NewsModel> {
@@ -24,7 +24,11 @@ class NewsRepositoryImpl(
         return remoteDataSource.getNews(page, pageSize)
     }
 
-    override suspend fun getNewsByCategory(page: Int, pageSize: Int, categoryId: Int): List<NewsModel> {
-        return remoteDataSource.getNews(page, pageSize)
+    override suspend fun getNewsByCategory(
+        page: Int,
+        pageSize: Int,
+        categoryId: Int
+    ): List<NewsModel> {
+        return remoteDataSource.getNewsByCategory(page, pageSize, categoryId)
     }
 } 

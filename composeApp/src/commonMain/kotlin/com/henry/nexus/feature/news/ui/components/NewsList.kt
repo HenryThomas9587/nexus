@@ -1,9 +1,7 @@
 package com.henry.nexus.feature.news.ui.components
 
-import androidx.compose.foundation.layout.Box
+import NewsItem
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -11,9 +9,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.henry.nexus.core.components.LoadMoreErrorItem
+import com.henry.nexus.core.components.LoadingMoreIndicator
 import com.henry.nexus.core.components.NoMoreDataItem
 import com.henry.nexus.core.util.Debounce
-import com.henry.nexus.core.components.LoadingIndicator
 import com.henry.nexus.feature.news.domain.model.NewsModel
 import com.henry.nexus.feature.news.ui.state.ScrollPosition
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -42,6 +40,7 @@ fun NewsList(
         initialFirstVisibleItemScrollOffset = scrollPosition.offset
     )
     val coroutineScope = rememberCoroutineScope()
+
     // 滚动位置防抖
     val scrollDebounce = remember(coroutineScope) {
         Debounce(
@@ -56,6 +55,19 @@ fun NewsList(
             )
         }
     }
+    // 监听滚动位置变化
+    val currentScrollPosition by remember {
+        derivedStateOf {
+            ScrollPosition(
+                index = listState.firstVisibleItemIndex,
+                offset = listState.firstVisibleItemScrollOffset
+            )
+        }
+    }
+    LaunchedEffect(currentScrollPosition) {
+        scrollDebounce.debounce()
+    }
+
 
     // 加载更多防抖
     val loadMoreDebounce = remember(coroutineScope) {
@@ -67,42 +79,28 @@ fun NewsList(
         }
     }
 
-    // 监听滚动位置变化
-    LaunchedEffect(listState) {
-        snapshotFlow {
-            ScrollPosition(
-                index = listState.firstVisibleItemIndex,
-                offset = listState.firstVisibleItemScrollOffset
-            )
-        }
-            .distinctUntilChanged()
-            .collect {
-                scrollDebounce.debounce()
-            }
-    }
 
     // 监听加载更多
-    LaunchedEffect(listState) {
+    LaunchedEffect(listState, isLoadingMore, loadMoreError, isNoMoreData, canLoadMore) {
         snapshotFlow {
             val layoutInfo = listState.layoutInfo
             val totalItemsCount = layoutInfo.totalItemsCount
             val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            LoadMoreInfo(
-                lastVisibleItem = lastVisibleItem,
-                totalItemsCount = totalItemsCount,
-                isOverscroll = listState.canScrollForward
-            )
+            lastVisibleItem to totalItemsCount
         }
             .distinctUntilChanged()
-            .collect { info ->
-                if (shouldLoadMore(
-                        info = info,
-                        isLoadingMore = isLoadingMore,
-                        hasError = loadMoreError != null,
-                        isNoMoreData = isNoMoreData,
-                        canLoadMore = canLoadMore
-                    )
-                ) {
+            .collect { (lastVisibleItem, totalItemsCount) ->
+
+                val shouldLoadMore = !isLoadingMore &&
+                        loadMoreError == null &&
+                        !isNoMoreData &&
+                        canLoadMore &&
+                        totalItemsCount > 0 &&
+                        lastVisibleItem >= totalItemsCount - LOAD_MORE_THRESHOLD &&
+                        !listState.canScrollForward
+
+
+                if (shouldLoadMore) {
                     loadMoreDebounce.debounce()
                 }
             }
@@ -142,13 +140,8 @@ fun NewsList(
                     key = "loading_more",
                     contentType = "loading"
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        LoadingIndicator()
-                    }
+                    LoadingMoreIndicator(
+                    )
                 }
             }
 
@@ -178,25 +171,3 @@ private fun NewsItemWrapper(
         )
     }
 }
-
-private data class LoadMoreInfo(
-    val lastVisibleItem: Int,
-    val totalItemsCount: Int,
-    val isOverscroll: Boolean
-)
-
-private fun shouldLoadMore(
-    info: LoadMoreInfo,
-    isLoadingMore: Boolean,
-    hasError: Boolean,
-    isNoMoreData: Boolean,
-    canLoadMore: Boolean
-): Boolean {
-    return !isLoadingMore &&
-            !hasError &&
-            !isNoMoreData &&
-            canLoadMore &&
-            info.totalItemsCount > 0 &&
-            info.lastVisibleItem >= info.totalItemsCount - LOAD_MORE_THRESHOLD &&
-            !info.isOverscroll
-} 

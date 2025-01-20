@@ -1,5 +1,6 @@
 package com.henry.nexus.feature.main.ui.components
 
+import NewsItem
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.henry.nexus.feature.news.domain.model.NewsModel
-import com.henry.nexus.feature.news.ui.components.NewsItem
 
 @Composable
 fun TradeNewsSection(
@@ -20,23 +20,21 @@ fun TradeNewsSection(
     title: String,
     tradeNews: List<NewsModel>
 ) {
-    Column(
-        modifier = modifier.padding(vertical = 8.dp)
-    ) {
+    Column(modifier = modifier.padding(top = 8.dp)) {
         Text(
+            modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             text = title,
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            contentPadding = PaddingValues(horizontal = 16.dp ),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(
                 items = tradeNews,
                 key = { it.id }
             ) { news ->
-                NewsItem(newsModel = news , onClick = {})
+                NewsItem(newsModel = news, onClick = {})
             }
         }
     }

@@ -11,10 +11,5 @@ fun NavigationHost(
     navController: NavController,
     paddingValues: PaddingValues
 ) {
-    when (navController.currentRoute) {
-        Route.HOME -> HomePage(paddingValues)
-        Route.DISCOVER -> DiscoverPage(paddingValues)
-        Route.PROFILE -> ProfilePage(paddingValues)
-        else -> HomePage(paddingValues)
-    }
+
 } 
