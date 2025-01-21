@@ -1,5 +1,6 @@
 package com.henry.nexus.feature.news.data.source
 
+import com.henry.nexus.feature.news.domain.model.NewsDetail
 import com.henry.nexus.feature.news.domain.model.NewsModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -23,11 +24,30 @@ class MockNewsDataSource : NewsDataSource {
         return generateMockNews(page)
     }
 
+    override suspend fun getNewsDetail(newsId: Int): NewsDetail? {
+        return generateMockNewsDetail(newsId)
+    }
+
+    private fun generateMockNewsDetail(newsId: Int): NewsDetail {
+        return NewsDetail(
+            id = newsId,
+            title = "新闻标题$newsId",
+            content = "这是新闻内容",
+            category = "分类",
+            description = "这是新闻描述",
+            author = "作者",
+            timeAgo = "1小时前",
+            views = "100",
+            comments = "10",
+            imageUrl = "https://picsum.photos/300/200?random=1"
+        )
+    }
+
     private fun generateMockNews(page: Int): List<NewsModel> {
         val startIndex = (page - 1) * PAGE_SIZE
         return (startIndex until startIndex + PAGE_SIZE).map { index ->
             NewsModel(
-                id = index,
+                id = index+1,
                 title = "新闻标题${index + 1}- ${
                     List(
                         Random.nextInt(

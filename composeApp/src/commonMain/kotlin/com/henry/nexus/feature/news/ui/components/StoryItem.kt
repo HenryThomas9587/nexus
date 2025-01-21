@@ -4,13 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,25 +24,21 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.henry.nexus.feature.news.domain.model.NewsModel
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun StoryItem(
     modifier: Modifier = Modifier,
     story: NewsModel,
-    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(175.dp)
-            .padding(horizontal = 16.dp),
+            .height(175.dp),
         elevation = 2.dp,
         shape = MaterialTheme.shapes.medium,
         backgroundColor = MaterialTheme.colors.surface,
-        onClick = onClick
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             StoryHeader(story = story)

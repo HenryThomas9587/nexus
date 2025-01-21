@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.henry.nexus.feature.main.ui.pages.BookmarksPage
 import com.henry.nexus.feature.main.ui.pages.DiscoverPage
-import com.henry.nexus.feature.main.ui.pages.HomePage
 import com.henry.nexus.feature.profile.ui.pages.ProfilePage
 
 object Router {
@@ -21,9 +20,9 @@ object Router {
     fun buildComposeRoute(route: String, paddingValues: PaddingValues) {
         val pages = remember {
             mapOf<String, @Composable (PaddingValues) -> Unit>(
-                Route.HOME to { padding -> HomePage(padding) },
+                Route.HOME to { padding -> DiscoverPage(padding) },
                 Route.DISCOVER to { padding -> DiscoverPage(padding) },
-                Route.BOOKMARKS to { padding -> BookmarksPage(padding) },
+                Route.BOOKMARKS to { padding -> DiscoverPage(padding) },
                 Route.PROFILE to { padding -> ProfilePage(padding) }
             )
         }
@@ -43,9 +42,9 @@ object RouterAlternative {
     }
 
     private val pages: Map<String, ComposableScreen> = mapOf(
-        Route.HOME to { padding -> HomePage(padding) },
+        Route.HOME to { padding -> DiscoverPage(padding) },
         Route.DISCOVER to { padding -> DiscoverPage(padding) },
-        Route.BOOKMARKS to { padding -> BookmarksPage(padding) },
+        Route.BOOKMARKS to { padding -> DiscoverPage(padding) },
         Route.PROFILE to { padding -> ProfilePage(padding) }
     )
 

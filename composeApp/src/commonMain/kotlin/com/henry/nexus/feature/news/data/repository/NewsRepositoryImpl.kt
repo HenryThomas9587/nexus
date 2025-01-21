@@ -1,6 +1,7 @@
 package com.henry.nexus.feature.news.data.repository
 
 import com.henry.nexus.feature.news.data.source.NewsDataSource
+import com.henry.nexus.feature.news.domain.model.NewsDetail
 import com.henry.nexus.feature.news.domain.model.NewsModel
 import com.henry.nexus.feature.news.domain.repository.NewsRepository
 
@@ -30,5 +31,9 @@ class NewsRepositoryImpl(
         categoryId: Int
     ): List<NewsModel> {
         return remoteDataSource.getNewsByCategory(page, pageSize, categoryId)
+    }
+
+    override suspend fun getNewsDetail(newsId: Int): NewsDetail? {
+        return  remoteDataSource.getNewsDetail(newsId)
     }
 } 

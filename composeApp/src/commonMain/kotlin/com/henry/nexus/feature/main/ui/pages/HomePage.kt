@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import com.henry.nexus.core.components.EmptyContent
 import com.henry.nexus.core.components.ErrorContent
 import com.henry.nexus.core.components.InitialLoadingContent
@@ -25,6 +26,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun HomePage(
     paddingValues: PaddingValues,
+    navController: NavHostController,
     viewModel: HomeNewViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -66,7 +68,7 @@ fun HomePage(
                     onScrollPositionChange = viewModel::updateScrollPosition,
                     onLoadMore = viewModel::loadMore,
                     onRetryLoadMore = viewModel::retryLoadMore,
-                    onClick = { /* 处理新闻点击事件 */ }
+                    navController = navController
                 )
                 PullRefreshIndicator(
                     refreshing = state.isRefreshing,

@@ -9,12 +9,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import com.henry.nexus.feature.main.ui.viewmodel.MainViewModel
 import com.henry.nexus.feature.main.util.Router
 import com.henry.nexus.feature.main.util.RouterAlternative
-import com.henry.nexus.core.components.BottomNavBar
-import com.henry.nexus.core.components.TabItem
-import com.henry.nexus.feature.main.ui.viewmodel.MainViewModel
 import nexus.composeapp.generated.resources.Res
 import nexus.composeapp.generated.resources.app_bar_title
 import org.jetbrains.compose.resources.stringResource
@@ -24,7 +21,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MainPage(viewModel: MainViewModel = koinViewModel()) {
     val trade = stringResource(Res.string.app_bar_title)
     val tabItems by viewModel.tabItems.collectAsState()
-    var currentRoute by remember { mutableStateOf(Router.Route.HOME) }
+    val currentRoute by remember { mutableStateOf(Router.Route.HOME) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -34,11 +31,11 @@ fun MainPage(viewModel: MainViewModel = koinViewModel()) {
             )
         },
         bottomBar = {
-            BottomNavBar(
-                tabItems = tabItems,
-                initTab = currentRoute,
-                onNavigate = { tabItem: TabItem -> currentRoute = tabItem.route }
-            )
+//            BottomNavBar(
+//                tabItems = tabItems,
+//                initTab = currentRoute,
+//                onNavigate = { tabItem: TabItem -> currentRoute = tabItem.route }
+//            )
         }
     ) { paddingValues ->
         RouterAlternative.buildComposeRoute(currentRoute, paddingValues)

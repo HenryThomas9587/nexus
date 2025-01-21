@@ -3,6 +3,7 @@ package com.henry.nexus.feature.main.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,9 +29,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.henry.nexus.core.components.LoadMoreErrorItem
 import com.henry.nexus.core.components.LoadingMoreIndicator
 import com.henry.nexus.core.components.NoMoreDataItem
+import com.henry.nexus.core.navigation.gotoNewsDetail
 import com.henry.nexus.core.util.Debounce
 import com.henry.nexus.feature.main.domain.entity.HomeData
 import com.henry.nexus.feature.main.domain.entity.HomeItemType
@@ -56,7 +59,7 @@ fun HomeListNew(
     onScrollPositionChange: (ScrollPosition) -> Unit,
     onLoadMore: () -> Unit,
     onRetryLoadMore: () -> Unit,
-    onClick: (HomeData) -> Unit
+    navController: NavHostController
 ) {
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = scrollPosition.index,
@@ -108,10 +111,10 @@ fun HomeListNew(
             state = listState,
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 72.dp) // 预留按钮空间
         ) {
             items(
                 items = homeDataList,
+                contentType = { it.type },
                 key = { "${it.type}-${it.id}" }
             ) { homeData ->
                 when (homeData.type) {
@@ -132,8 +135,11 @@ fun HomeListNew(
                     HomeItemType.STORY.type -> {
                         homeData.story?.let {
                             StoryItem(
+                                modifier = Modifier.padding(horizontal = 16.dp).clickable {
+                                    navController.gotoNewsDetail(it.id)
+                                },
                                 story = it,
-                                onClick = { onClick(homeData) })
+                            )
                         }
                     }
                 }

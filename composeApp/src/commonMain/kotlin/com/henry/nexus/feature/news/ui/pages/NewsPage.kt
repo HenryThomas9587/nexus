@@ -24,11 +24,14 @@ import com.henry.nexus.core.components.InitialLoadingContent
 import com.henry.nexus.feature.news.ui.components.NewsList
 import com.henry.nexus.feature.news.ui.viewmodel.NewsViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import com.henry.nexus.core.navigation.NavController
+import com.henry.nexus.core.navigation.Route
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NewsPage(
     paddingValues: PaddingValues,
+    navController: NavController,
     viewModel: NewsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -82,7 +85,9 @@ fun NewsPage(
                     onScrollPositionChange = viewModel::updateScrollPosition,
                     onLoadMore = viewModel::loadMore,
                     onRetryLoadMore = viewModel::retryLoadMore,
-                    onNewsClick = { /* 处理新闻点击事件 */ }
+                    onNewsClick = { news -> 
+                        navController.navigateTo(Route.newsDetail(news.id))
+                    }
                 )
 
                 PullRefreshIndicator(

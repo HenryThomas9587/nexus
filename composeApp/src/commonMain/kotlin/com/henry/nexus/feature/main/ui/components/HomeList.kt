@@ -117,7 +117,7 @@ fun HomeList(
                     }
 
                     HomeItemType.STORY.type -> {
-                        homeData.story?.let { StoryItem(story = it, onClick = {}) }
+                        homeData.story?.let { StoryItem(story = it) }
                     }
                 }
             }
@@ -144,7 +144,6 @@ fun HomeList(
         }
     }
 }
-
 
 
 private fun shouldLoadMore(

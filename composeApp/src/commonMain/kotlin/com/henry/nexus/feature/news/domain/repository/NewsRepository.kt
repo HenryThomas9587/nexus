@@ -1,5 +1,6 @@
 package com.henry.nexus.feature.news.domain.repository
 
+import com.henry.nexus.feature.news.domain.model.NewsDetail
 import com.henry.nexus.feature.news.domain.model.NewsModel
 
 interface NewsRepository {
@@ -8,4 +9,5 @@ interface NewsRepository {
     suspend fun getHotNews(page: Int, pageSize: Int): List<NewsModel>
     suspend fun getLatestNews(page: Int, pageSize: Int): List<NewsModel>
     suspend fun getNewsByCategory(page: Int, pageSize: Int, categoryId: Int): List<NewsModel>
+    suspend fun getNewsDetail(newsId: Int): NewsDetail?
 }
